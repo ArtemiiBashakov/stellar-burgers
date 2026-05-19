@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { FC, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../services/hooks';
 import {
@@ -26,6 +26,13 @@ export const BurgerConstructor: FC = () => {
   const user = useAppSelector(selectUser);
 
   const safeIngredients = ingredients || [];
+
+  // когда появляется orderModalData (заказ успешно создан) — очищаем конструктор
+  useEffect(() => {
+    if (orderModalData) {
+      dispatch(clearConstructor());
+    }
+  }, [orderModalData, dispatch]);
 
   const getOrderIngredientsIds = useMemo(() => {
     const ids: string[] = [];
@@ -57,7 +64,6 @@ export const BurgerConstructor: FC = () => {
 
   const closeOrderModalHandler = () => {
     dispatch(closeOrderModal());
-    dispatch(clearConstructor());
   };
 
   const constructorItems = {

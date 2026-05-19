@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { TIngredient } from '@utils-types';
 import { getIngredientsApi } from '@api';
+import { RootState } from '../store';
 
 interface IngredientsState {
   ingredients: TIngredient[];
@@ -14,7 +15,6 @@ const initialState: IngredientsState = {
   error: null
 };
 
-// Асинхронный thunk для получения ингредиентов
 export const fetchIngredients = createAsyncThunk<TIngredient[]>(
   'ingredients/fetchIngredients',
   async () => {
@@ -44,17 +44,14 @@ const ingredientsSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Ошибка загрузки ингредиентов';
       });
-  },
-  selectors: {
-    selectIngredients: (state) => state.ingredients,
-    selectIngredientsLoading: (state) => state.loading,
-    selectIngredientsError: (state) => state.error
   }
 });
 
-export const {
-  selectIngredients,
-  selectIngredientsLoading,
-  selectIngredientsError
-} = ingredientsSlice.selectors;
+export const selectIngredients = (state: RootState) =>
+  state.ingredients.ingredients;
+export const selectIngredientsLoading = (state: RootState) =>
+  state.ingredients.loading;
+export const selectIngredientsError = (state: RootState) =>
+  state.ingredients.error;
+
 export default ingredientsSlice.reducer;

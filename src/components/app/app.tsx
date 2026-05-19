@@ -5,7 +5,7 @@ import {
   fetchIngredients,
   selectIngredientsLoading
 } from '../../services/slices/ingredientsSlice';
-import { getUser } from '../../services/slices/userSlice';
+import { getUser, selectIsAuthChecked } from '../../services/slices/userSlice';
 import { ConstructorPage } from '../../pages/constructor-page';
 import { Feed } from '../../pages/feed';
 import { Login } from '../../pages/login';

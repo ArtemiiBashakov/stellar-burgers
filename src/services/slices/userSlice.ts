@@ -10,6 +10,7 @@ import {
   TRegisterData
 } from '@api';
 import { deleteCookie, setCookie } from '../../utils/cookie';
+import { RootState } from '../store';
 
 interface UserState {
   user: TUser | null;
@@ -25,7 +26,6 @@ const initialState: UserState = {
   error: null
 };
 
-// Регистрация
 export const registerUser = createAsyncThunk(
   'user/register',
   async (data: TRegisterData) => {
@@ -36,7 +36,6 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// Логин
 export const loginUser = createAsyncThunk(
   'user/login',
   async (data: TLoginData) => {
@@ -47,13 +46,11 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Получение текущего пользователя
 export const getUser = createAsyncThunk('user/getUser', async () => {
   const response = await getUserApi();
   return response.user;
 });
 
-// Обновление пользователя
 export const updateUser = createAsyncThunk(
   'user/updateUser',
   async (user: Partial<TRegisterData>) => {
@@ -62,7 +59,6 @@ export const updateUser = createAsyncThunk(
   }
 );
 
-// Выход
 export const logoutUser = createAsyncThunk('user/logout', async () => {
   await logoutApi();
   localStorage.removeItem('refreshToken');
@@ -118,7 +114,7 @@ const userSlice = createSlice({
       })
       .addCase(getUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.isAuthChecked = true; // Важно: даже при ошибке помечаем как проверенный
+        state.isAuthChecked = true;
         state.error = action.error.message || 'Ошибка получения пользователя';
       })
       // Обновление пользователя
@@ -137,22 +133,15 @@ const userSlice = createSlice({
       // Выход
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
-        state.isAuthChecked = false;
+        // isAuthChecked оставляем true, чтобы не было бесконечного прелоадера
       });
-  },
-  selectors: {
-    selectUser: (state) => state.user,
-    selectIsAuthChecked: (state) => state.isAuthChecked,
-    selectUserLoading: (state) => state.isLoading,
-    selectUserError: (state) => state.error
   }
 });
 
-export const {
-  selectUser,
-  selectIsAuthChecked,
-  selectUserLoading,
-  selectUserError
-} = userSlice.selectors;
+export const selectUser = (state: RootState) => state.user.user;
+export const selectIsAuthChecked = (state: RootState) =>
+  state.user.isAuthChecked;
+export const selectUserLoading = (state: RootState) => state.user.isLoading;
+export const selectUserError = (state: RootState) => state.user.error;
 
 export default userSlice.reducer;

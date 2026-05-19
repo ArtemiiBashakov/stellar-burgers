@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction, nanoid } from '@reduxjs/toolkit';
 import { TConstructorIngredient, TIngredient } from '@utils-types';
+import { RootState } from '../store'; // добавить импорт
 
 interface ConstructorState {
   bun: TConstructorIngredient | null;
@@ -12,16 +13,14 @@ const initialState: ConstructorState = {
 };
 
 const constructorSlice = createSlice({
-  name: 'constructor',
+  name: 'burgerConstructor',
   initialState,
   reducers: {
     addIngredient: {
       reducer: (state, action: PayloadAction<TConstructorIngredient>) => {
-        // Защита от undefined
         if (!state.ingredients) {
           state.ingredients = [];
         }
-
         if (action.payload.type === 'bun') {
           state.bun = action.payload;
         } else {
@@ -68,11 +67,11 @@ export const {
   clearConstructor
 } = constructorSlice.actions;
 
-// Селекторы теперь обращаются к burgerConstructor
-export const selectConstructorItems = (state: any) => state.burgerConstructor;
-export const selectConstructorBun = (state: any) =>
-  state.burgerConstructor?.bun || null;
-export const selectConstructorIngredients = (state: any) =>
-  state.burgerConstructor?.ingredients || [];
+export const selectConstructorItems = (state: RootState) =>
+  state.burgerConstructor;
+export const selectConstructorBun = (state: RootState) =>
+  state.burgerConstructor.bun;
+export const selectConstructorIngredients = (state: RootState) =>
+  state.burgerConstructor.ingredients;
 
 export default constructorSlice.reducer;
