@@ -1,16 +1,23 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../services/hooks';
+import {
+  selectUser,
+  updateUser,
+  selectUserError,
+  selectUserLoading
+} from '../../services/slices/userSlice';
+import { TRegisterData } from '@api';
 
 export const Profile: FC = () => {
-  /** TODO: взять переменную из стора */
-  const user = {
-    name: '',
-    email: ''
-  };
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const updateUserError = useAppSelector(selectUserError);
+  const isLoading = useAppSelector(selectUserLoading);
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    name: user?.name || '',
+    email: user?.email || '',
     password: ''
   });
 
@@ -29,13 +36,19 @@ export const Profile: FC = () => {
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
+    const updateData: Partial<TRegisterData> = {};
+    if (formValue.name !== user?.name) updateData.name = formValue.name;
+    if (formValue.email !== user?.email) updateData.email = formValue.email;
+    if (formValue.password) updateData.password = formValue.password;
+
+    dispatch(updateUser(updateData));
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name || '',
+      email: user?.email || '',
       password: ''
     });
   };
@@ -47,6 +60,10 @@ export const Profile: FC = () => {
     }));
   };
 
+  if (isLoading) {
+    return null; // или прелоадер
+  }
+
   return (
     <ProfileUI
       formValue={formValue}
@@ -54,8 +71,7 @@ export const Profile: FC = () => {
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}
+      updateUserError={updateUserError || undefined}
     />
   );
-
-  return null;
 };
