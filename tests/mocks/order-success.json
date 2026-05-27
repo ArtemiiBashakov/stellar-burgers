@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "order": {
+    "_id": "67f8c2b4a1b2c3d4e5f6g7h8",
+    "status": "done",
+    "name": "Флюоресцентный бургер",
+    "createdAt": "2024-01-01T12:00:00.000Z",
+    "updatedAt": "2024-01-01T12:00:00.000Z",
+    "number": 54321,
+    "ingredients": [
+      "643d69a5c3f7b9001cfa093c",
+      "643d69a5c3f7b9001cfa0941"
+    ]
+  },
+  "name": "Флюоресцентный бургер"
+}
