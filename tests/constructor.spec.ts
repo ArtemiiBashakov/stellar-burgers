@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Страница конструктора бургера', () => {
   test.beforeEach(async ({ context, page }) => {
     // Используем один общий HAR файл для всех запросов
-    await context.routeFromHAR('./tests/hars/all.har', {
-      update: false,
+    await page.routeFromHAR('./tests/hars/all.har', {
+      update: false
     });
 
     // Подставляем токены (они всё равно нужны для авторизации)
