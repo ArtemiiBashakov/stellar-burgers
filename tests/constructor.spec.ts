@@ -1,17 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Страница конструктора бургера', () => {
-  test.beforeEach(async ({ page }) => {
-    // Перехватываем запросы
-    await page.route('**/api/ingredients', async (route) => {
-      await route.fulfill({ path: './tests/mocks/ingredients.json' });
+  test.beforeEach(async ({ context, page }) => {
+    // Используем один общий HAR файл для всех запросов
+    await context.routeFromHAR('./tests/hars/all.har', {
+      update: false,
     });
 
-    await page.route('**/api/auth/user', async (route) => {
-      await route.fulfill({ path: './tests/mocks/user.json' });
-    });
-
-    // Подставляем токены
+    // Подставляем токены (они всё равно нужны для авторизации)
     await page.addInitScript(() => {
       localStorage.setItem('refreshToken', 'mock-refresh-token-67890');
       document.cookie = 'accessToken=mock-access-token-12345; path=/';
@@ -36,13 +32,10 @@ test.describe('Страница конструктора бургера', () => 
     );
     const addButton = ingredient.locator('button', { hasText: 'Добавить' });
 
-    // Считаем количество элементов в конструкторе до добавления
     const initialCount = await page.locator('.constructor-element').count();
 
-    // Добавляем ингредиент
     await addButton.click();
 
-    // Ждём, пока количество увеличится
     await expect(async () => {
       const newCount = await page.locator('.constructor-element').count();
       expect(newCount).toBe(initialCount + 1);
@@ -77,14 +70,7 @@ test.describe('Страница конструктора бургера', () => 
     await expect(page.locator('[data-testid="modal"]')).toContainText('420');
   });
 
-  test('должен создать заказ', async ({ page }) => {
-    await page.route('**/api/orders', async (route) => {
-      expect(route.request().headers()['authorization']).toBe(
-        'mock-access-token-12345'
-      );
-      await route.fulfill({ path: './tests/mocks/order-success.json' });
-    });
-
+  test('должен создать заказ и очистить конструктор', async ({ page }) => {
     // Добавляем ингредиенты
     await page
       .locator('[data-testid="ingredient-643d69a5c3f7b9001cfa093c"] button')
@@ -96,11 +82,14 @@ test.describe('Страница конструктора бургера', () => 
     // Оформляем заказ
     await page.locator('button', { hasText: 'Оформить заказ' }).click();
 
-    // Проверяем модалку с заказом
+    // Проверяем модалку
     await expect(page.locator('[data-testid="modal"]')).toBeVisible();
     await expect(page.locator('[data-testid="modal"]')).toContainText('54321');
 
     // Закрываем модалку
     await page.locator('[data-testid="modal-close"]').click();
+
+    // Проверяем очистку конструктора
+    await expect(page.locator('.constructor-element')).toHaveCount(0);
   });
 });
